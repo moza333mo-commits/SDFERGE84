@@ -3,97 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم الإدارة</title>
+    <title>منصة أرجوان الشام الموحدة - إدارة العمال</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            color: #333;
+        :root {
+            --gold: #c7a064; 
+            --dark-bg: #111111;
+            --glass-bg: rgba(25, 25, 25, 0.7);
+            --glass-border: rgba(199, 160, 100, 0.2);
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
         }
-        .card {
-            background-color: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
-        }
-        h2 { margin-top: 0; color: #555; font-size: 24px; }
-        .balance-container {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        .balance {
-            font-size: 40px;
-            font-weight: bold;
-            color: #27ae60;
-            margin: 0;
-            direction: ltr;
-        }
-        .balance.negative { color: #c0392b; }
-        .time { font-size: 12px; color: #888; margin-top: 15px; }
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--dark-bg); color: var(--text-main); overflow-x: hidden; background-image: radial-gradient(circle at 50% 0%, #2a2218 0%, #111111 70%); min-height: 100vh; }
+        
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--dark-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.8s ease-out; }
+        .logo { width: 150px; height: 150px; background: url('1000070015.jpg') no-repeat center center; background-size: contain; margin-bottom: 20px; animation: pulse 2s infinite alternate; }
+        .splash-title { font-size: 28px; font-weight: 700; color: var(--gold); margin-bottom: 5px; }
+        .splash-subtitle { font-size: 18px; font-weight: 300; letter-spacing: 2px; color: var(--text-muted); }
+        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 100% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 15px var(--gold)); } }
+        
+        #main-dashboard { display: none; padding: 40px 20px; max-width: 1200px; margin: auto; animation: fadeIn 1s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { color: var(--gold); font-weight: 900; font-size: 32px; }
+        p.subtitle { color: var(--text-muted); font-size: 16px; }
+        
+        .top-stats { display: flex; justify-content: center; gap: 30px; margin-bottom: 50px; flex-wrap: wrap; }
+        .stat-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 30px; width: 250px; text-align: center; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: transform 0.3s, border-color 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); border-color: var(--gold); }
+        .stat-card h3 { font-size: 18px; color: var(--text-muted); margin-bottom: 10px; }
+        .stat-card .number { font-size: 50px; font-weight: 900; color: var(--gold); }
+        
+        .sections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .section-btn { background: linear-gradient(145deg, #1e1e1e, #111111); border: 1px solid var(--glass-border); border-radius: 20px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
+        .section-btn:hover { background: #1a1a1a; box-shadow: 0 0 20px rgba(199, 160, 100, 0.2); border-color: var(--gold); }
+        .section-btn h2 { color: var(--text-main); font-size: 24px; margin-bottom: 10px; }
+        .section-btn p { color: var(--text-muted); font-size: 14px; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: var(--dark-bg); border: 1px solid var(--gold); border-radius: 20px; width: 100%; max-width: 1000px; max-height: 85vh; overflow-x: auto; overflow-y: auto; padding: 30px; position: relative; animation: slideIn 0.4s ease-out; }
+        @keyframes slideIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .close-btn { position: sticky; top: 0px; float: left; background: none; border: none; color: var(--gold); font-size: 30px; cursor: pointer; transition: 0.2s; z-index: 10; }
+        .close-btn:hover { color: red; transform: scale(1.1); }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; white-space: nowrap; }
+        th { background: rgba(199, 160, 100, 0.1); color: var(--gold); padding: 15px; text-align: right; border-bottom: 2px solid var(--gold); }
+        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-main); }
+        tr:hover { background: rgba(255,255,255,0.02); }
+        
+        #loading-indicator { text-align: center; color: var(--gold); font-size: 14px; margin-top: 20px; }
     </style>
 </head>
 <body>
+    <div id="splash-screen">
+        <div class="logo"></div>
+        <div class="splash-title">منصة أرجوان الشام الموحدة</div>
+        <div class="splash-subtitle">إدارة الكوادر والعمال</div>
+    </div>
 
-    <div class="card">
-        <h2>💰 رصيد الصندوق الحالي</h2>
-        
-        <div class="balance-container">
-            <div id="loading" class="spinner"></div>
-            <p id="amount" class="balance" style="display:none;"></p>
+    <div id="main-dashboard">
+        <header>
+            <h1>أرجوان الشام</h1>
+            <p class="subtitle">لوحة التحكم والمراقبة المباشرة</p>
+            <div id="loading-indicator">جاري مزامنة البيانات الحية...</div>
+        </header>
+
+        <div class="top-stats">
+            <div class="stat-card">
+                <h3>إجمالي الشباب حالياً</h3>
+                <div class="number" id="total-male">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>إجمالي البنات حالياً</h3>
+                <div class="number" id="total-female">0</div>
+            </div>
         </div>
-        
-        <div id="last-update" class="time">جاري التحديث...</div>
+
+        <div class="sections-grid">
+            <div class="section-btn" onclick="openModal('modal-daily')">
+                <h2>سجل حضور اليوم التفصيلي</h2>
+                <p>استعراض مفصل لجميع حركات الدخول والخروج للكوادر لليوم الحالي</p>
+            </div>
+            <div class="section-btn" onclick="openModal('modal-missing')">
+                <h2>سجل الحركات غير المكتملة</h2>
+                <p>مراقبة وتتبع البصمات الناقصة (دخول بدون خروج أو العكس)</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-daily" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('modal-daily')">&times;</button>
+            <h2 style="color: var(--gold); margin-bottom: 20px;">سجل الحضور اليومي</h2>
+            <table id="daily-table">
+                <thead><tr><th>الرقم</th><th>الاسم</th><th>وقت الدخول</th><th>وقت الخروج</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="modal-missing" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('modal-missing')">&times;</button>
+            <h2 style="color: var(--gold); margin-bottom: 20px;">سجل نقص البصمات</h2>
+            <table id="missing-table">
+                <thead><tr id="missing-headers"></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
-        // رابط جوجل السري الخاص بك
-        const URL = "https://script.google.com/macros/s/AKfycbyvLZ4QstWPfjjqN8ewYyIXGmeAGXtnOZOMDJ6aCT3Rkq_t8m91mZKwbYHnjuuBFis/exec";
+        const dataUrl = 'attendance_data.json';
 
-        fetch(URL)
-            .then(response => response.json())
-            .then(data => {
-                const amountEl = document.getElementById('amount');
-                const loadingEl = document.getElementById('loading');
-                const updateEl = document.getElementById('last-update');
-                
-                loadingEl.style.display = 'none';
-                amountEl.style.display = 'block';
-                
-                let balanceValue = parseFloat(data.balance);
-                amountEl.innerText = balanceValue.toLocaleString('en-US');
-                
-                if(balanceValue < 0) amountEl.classList.add('negative');
-                
-                let date = new Date(data.time);
-                updateEl.innerText = "آخر تحديث: " + date.toLocaleTimeString('ar-EG');
-            })
-            .catch(error => {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('amount').style.display = 'block';
-                document.getElementById('amount').innerText = "خطأ في الاتصال";
-                document.getElementById('amount').style.color = "red";
-            });
+        setTimeout(() => {
+            document.getElementById('splash-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.display = 'none';
+                document.getElementById('main-dashboard').style.display = 'block';
+                fetchData(); 
+            }, 800);
+        }, 1500);
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        async function fetchData() {
+            try {
+                const response = await fetch(dataUrl + '?t=' + new Date().getTime());
+                const data = await response.json();
+
+                // تحديث العدادات العلوية
+                document.getElementById('total-female').innerText = data.total_female;
+                document.getElementById('total-male').innerText = data.total_male;
+
+                // تحديث سجل حضور اليوم التفصيلي
+                const dailyTableBody = document.querySelector('#daily-table tbody');
+                dailyTableBody.innerHTML = ''; 
+                if (data.daily_stats) {
+                    data.daily_stats.forEach(stat => {
+                        let tr = document.createElement('tr');
+                        let outTime = stat.out ? stat.out : '<span style="color:#ffc0cb;">لا يوجد خروج</span>';
+                        tr.innerHTML = `<td>${stat.id}</td><td>${stat.name}</td><td>${stat.in}</td><td>${outTime}</td>`;
+                        dailyTableBody.appendChild(tr);
+                    });
+                }
+
+                // تحديث سجل نقص البصمات
+                const missingHeaders = document.getElementById('missing-headers');
+                const missingBody = document.querySelector('#missing-table tbody');
+                missingHeaders.innerHTML = '';
+                missingBody.innerHTML = '';
+
+                if (data.missing_punches_headers) {
+                    data.missing_punches_headers.forEach(h => {
+                        let th = document.createElement('th');
+                        th.innerText = h;
+                        missingHeaders.appendChild(th);
+                    });
+                }
+
+                if (data.missing_punches_rows) {
+                    data.missing_punches_rows.forEach(row => {
+                        let tr = document.createElement('tr');
+                        row.forEach(cellData => {
+                            let td = document.createElement('td');
+                            td.innerText = cellData || '';
+                            tr.appendChild(td);
+                        });
+                        missingBody.appendChild(tr);
+                    });
+                }
+
+                document.getElementById('loading-indicator').innerText = 'آخر تحديث حقيقي: ' + data.last_update + ' ✔';
+                document.getElementById('loading-indicator').style.color = '#c7a064';
+
+            } catch (error) {
+                console.error("خطأ في جلب البيانات:", error);
+                document.getElementById('loading-indicator').innerText = 'بانتظار مزامنة السيرفر...';
+            }
+        }
+
+        setInterval(fetchData, 60000);
     </script>
 </body>
 </html>
